@@ -568,7 +568,7 @@ module.exports = class Sessions {
     session.message = 'Sistema iniciando e indisponivel para uso';
     //
     const conn = new WAConnection();
-    conn.loadAuthInfo(`./auth_info/${SessionName}.json`);
+    //conn.loadAuthInfo(`./auth_info/${SessionName}.json`);
     let attempts = 0;
     conn.connectOptions = {
       /** fails the connection if no data is received for X seconds */
