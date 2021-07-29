@@ -6,7 +6,18 @@ const {
   forEach
 } = require('p-iteration');
 const axios = require('axios');
-const wppconnect = require('@wppconnect-team/wppconnect');
+const {
+  WAConnection,
+  MessageType,
+  Presence,
+  MessageOptions,
+  Mimetype,
+  WALocationMessage,
+  WA_MESSAGE_STUB_TYPES,
+  ReconnectMode,
+  ProxyAgent,
+  waChatKey,
+} = require('@adiwajshing/baileys');
 const conn = require('./config/dbConnection').promise();
 const serverConfig = require("./config/server.config.json");
 const io = require("socket.io-client"),
@@ -548,10 +559,76 @@ module.exports = class Sessions {
       session.tokenPatch = folderToken;
     }
     //
-    const client = await wppconnect.create({
-
-
+    const conn = new WAConnection();
+    //conn.loadAuthInfo('./auth_info.json'); // will load JSON credentials from file
+    let attempts = 0;
+    conn.connectOptions = {
+      /** fails the connection if no data is received for X seconds */
+      maxIdleTimeMs: 60000,
+      /** maximum attempts to connect */
+      maxRetries: 5,
+      /** max time for the phone to respond to a connectivity test */
+      phoneResponseTime: 15000,
+      /** minimum time between new connections */
+      connectCooldownMs: 40000,
+      /** agent used for WS connections (could be a proxy agent) */
+      agent: Agent = undefined,
+      /** agent used for fetch requests -- uploading/downloading media */
+      fetchAgent: Agent = undefined,
+      /** always uses takeover for connecting */
+      alwaysUseTakeover: true,
+      /** log QR to terminal */
+      logQR: false,
+      //
+      regenerateQRIntervalMs: 4000
+    };
+    //
+    conn.autoReconnect = ReconnectMode.onConnectionLost; // only automatically reconnect when the connection breaks
+    conn.logger.level = 'debug'; // set to 'debug' to see what kind of stuff you can implement
+    // attempt to reconnect at most 10 times in a row
+    //conn.connectOptions.maxRetries = 10;
+    conn.chatOrderingKey = waChatKey(true); // order chats such that pinned chats are on top
+    // called when WA sends chats
+    // this can take up to a few minutes if you have thousands of chats!
+    conn.on('chats-received', async ({
+      hasNewChats
+    }) => {
+      console.log(`you have ${conn.chats.length} chats, new chats available: ${hasNewChats}`)
+      const unread = await conn.loadAllUnreadMessages()
+      console.log("you have " + unread.length + " unread messages")
     });
+    //
+    conn.on('chats-received', ({
+      hasNewChats
+    }) => {
+      console.log(`you have ${conn.chats.length} chats, new chats available: ${hasNewChats}`)
+    });
+    conn.on('contacts-received', () => {
+      console.log(`you have ${Object.keys(conn.contacts).length} contacts`)
+    });
+    conn.on('initial-data-received', () => {
+      console.log('received all initial messages')
+    });
+    //
+    conn.on('qr', qr => {
+      // Now, use the 'qr' string to display in QR UI or send somewhere
+      attempts += 1;
+      console.log({
+        type: 'qr',
+        qr,
+        attempts
+      });
+    });
+    //
+    // this will be called as soon as the credentials are updated
+    conn.on('open', () => {
+      // save credentials whenever updated
+      console.log(`credentials updated!`);
+      const authInfo = conn.base64EncodedAuthInfo() // get all the auth info we need to restore this session
+      // fs.writeFileSync('./auth_info.json', JSON.stringify(authInfo, null, '\t')) // save this info to a file
+      console.log(authInfo);
+    });
+    const client = await conn.connect();
     //
     return client;
   } //initSession
@@ -568,144 +645,7 @@ module.exports = class Sessions {
     console.log("- Sinstema iniciando");
     var session = Sessions.getSession(SessionName);
     await session.client.then(client => {
-      // State change
-      let time = 0;
-      client.onStateChange(async (state) => {
-        session.state = state;
-        console.log('- Connection status: ', state);
-        clearTimeout(time);
-        if (state == "CONNECTED") {
-          session.state = state;
-          session.status = 'isLogged';
-          session.qrcode = null;
-          //
-        } else if (state == "OPENING") {
-          session.state = state;
-          session.status = 'notLogged';
-          session.qrcode = null;
-          //
-          await deletaToken(session.tokenPatch + "/" + SessionName + ".data.json");
-          //
-        } else if (state == "UNPAIRED") {
-          session.state = state;
-          session.status = 'notLogged';
-          session.qrcode = null;
-          //
-          await deletaToken(session.tokenPatch + "/" + SessionName + ".data.json");
-          //
-        } else if (state === 'DISCONNECTED' || state === 'SYNCING') {
-          session.state = state;
-          session.status = 'notLogged';
-          session.qrcode = null;
-          //
-          await deletaToken(session.tokenPatch + "/" + SessionName + ".data.json");
-          //
-          time = setTimeout(() => {
-            client.close();
-            // process.exit(); //optional function if you work with only one session
-          }, 80000);
-        }
-        //
-        await updateStateDb(session.state, session.status, SessionName);
-        //
-        // force whatsapp take over
-        if ('CONFLICT'.includes(state)) client.useHere();
-        // detect disconnect on whatsapp
-        if ('UNPAIRED'.includes(state)) console.log('- Logout');
-      });
-      //
-      // Listen to messages
-      client.onMessage(async (message) => {
-        console.log("- onMessage")
-        //
-        /*
-        console.log("- Type.....:", message.type);
-        console.log("- Body.....:", message.body);
-        console.log("- From.....:", message.from);
-        console.log("- To.......:", message.to);
-        console.log("- Push Name:", message.chat.contact.pushname);
-        console.log("- Is Group.:", message.isGroupMsg);
-        */
-        //
-        if (message.body === 'Hi' && message.isGroupMsg === false) {
-          client
-            .sendText(message.from, await saudacao() + ",\nWelcome Venom 🕷")
-            .then((result) => {
-              //console.log('- Result: ', result); //retorna um objeto de successo
-            })
-            .catch((erro) => {
-              //console.error('- Error: ', erro); //return um objeto de erro
-            });
-        }
-      });
-      //
-      // function to detect incoming call
-      client.onIncomingCall(async (call) => {
-        client.sendText(call.peerJid, await saudacao() + ",\nDesculpe-me mas não consigo atender sua chamada, se for urgente manda msg de texto, grato.");
-      });
-      // Listen when client has been added to a group
-      client.onAddedToGroup(async (chatEvent) => {
-        //console.log('- Listen when client has been added to a group:', chatEvent.name);
-      });
-      // Listen to ack's
-      // See the status of the message when sent.
-      // When receiving the confirmation object, "ack" may return a number, look {@link AckType} for details:
-      // -7 = MD_DOWNGRADE,
-      // -6 = INACTIVE,
-      // -5 = CONTENT_UNUPLOADABLE,
-      // -4 = CONTENT_TOO_BIG,
-      // -3 = CONTENT_GONE,
-      // -2 = EXPIRED,
-      // -1 = FAILED,
-      //  0 = CLOCK,
-      //  1 = SENT,
-      //  2 = RECEIVED,
-      //  3 = READ,
-      //  4 = PLAYED =
-      //
-      client.onAck(async (ack) => {
-        console.log("- Listen to ack", ack.ack);
-        switch (ack.ack) {
-          case -7:
-            console.log("- MD_DOWNGRADE");;
-            break;
-          case -6:
-            console.log("- INACTIVE");;
-            break;
-          case -5:
-            console.log("- CONTENT_UNUPLOADABLE");;
-            break;
-          case -4:
-            console.log("- CONTENT_TOO_BIG");;
-            break;
-          case -3:
-            console.log("- CONTENT_GONE");;
-            break;
-          case -2:
-            console.log("- EXPIRED");;
-            break;
-          case -1:
-            console.log("- FAILED");;
-            break;
-          case 0:
-            console.log("- CLOCK");;
-            break;
-          case 1:
-            console.log("- SENT");;
-            break;
-          case 2:
-            console.log("- RECEIVED");;
-            break;
-          case 3:
-            console.log("- READ");;
-            break;
-          case 4:
-            console.log("- PLAYED");;
-            break;
-          default:
-            console.log("- Listen to ack: N/D");
-        }
-      });
+
     });
   } //setup
   //
