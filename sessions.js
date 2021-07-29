@@ -559,8 +559,16 @@ module.exports = class Sessions {
       session.tokenPatch = folderToken;
     }
     //
+    console.log("- Saudação:", await saudacao());
+    //
+    console.log('- Nome da sessão:', session.name);
+    //
+    session.state = "QRCODE";
+    session.status = "qrRead";
+    session.message = 'Sistema iniciando e indisponivel para uso';
+    //
     const conn = new WAConnection();
-    //conn.loadAuthInfo('./auth_info.json'); // will load JSON credentials from file
+    conn.loadAuthInfo(`./auth_info/${number}.json`);
     let attempts = 0;
     conn.connectOptions = {
       /** fails the connection if no data is received for X seconds */
@@ -628,7 +636,7 @@ module.exports = class Sessions {
       // fs.writeFileSync('./auth_info.json', JSON.stringify(authInfo, null, '\t')) // save this info to a file
       console.log(authInfo);
     });
-    const client = await conn.connect();
+    const client = await conn.connect().catch(err => console.log("unexpected error: " + err)); // catch any errors;
     //
     return client;
   } //initSession
