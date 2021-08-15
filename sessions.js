@@ -569,17 +569,25 @@ module.exports = class Sessions {
     session.status = "qrRead";
     session.message = 'Sistema iniciando e indisponivel para uso';
     //
-    const conn = new WAConnection()
+    const conn = new WAConnection();
+    conn.connectOptions = {
+      regenerateQRIntervalMs: 40000,
+      maxIdleTimeMs: 60000,
+      phoneResponseTime: 30000,
+      connectCooldownMs: 40000,
+      alwaysUseTakeover: false
+    };
     conn.browserDescription = ['ConnectZap', 'Chrome', '87']
-    fs.existsSync(`${session.tokenPatch}/auth_info/${session.name}.data.json`) && conn.loadAuthInfo(`${session.tokenPatch}/auth_info/${session.name}.data.json`);
-    conn.autoReconnect = ReconnectMode.onConnectionLost // only automatically reconnect when the connection breaks
-    conn.logger.level = 'debug' // set to 'debug' to see what kind of stuff you can implement
+    fs.existsSync(`${session.tokenPatch}/${session.name}.data.json`) && conn.loadAuthInfo(`${session.tokenPatch}/${session.name}.data.json`);
+    conn.autoReconnect = ReconnectMode.onConnectionLost; // only automatically reconnect when the connection breaks
+    conn.logger.level = 'debug'; // set to 'debug' to see what kind of stuff you can implement
     // attempt to reconnect at most 10 times in a row
-    conn.connectOptions.maxRetries = 10
-    conn.chatOrderingKey = waChatKey(true) // order chats such that pinned chats are on top
+    conn.connectOptions.maxRetries = 10;
+    conn.chatOrderingKey = waChatKey(true); // order chats such that pinned chats are on top
     //
     let lastqr = null;
     let attempts = 0;
+    //
     conn.on('qr', (qr) => {
       lastqr = qr;
       attempts++;
@@ -597,13 +605,11 @@ module.exports = class Sessions {
       console.log(err);
     });
     //
-
-    //
-    //
     // credentials are updated on every connect
-    const authInfo = conn.base64EncodedAuthInfo() // get all the auth info we need to restore this session
-    fs.writeFileSync('./auth_info.json', JSON.stringify(authInfo, null, '\t')) // save this info to a file
-
+    const authInfo = conn.base64EncodedAuthInfo(); // get all the auth info we need to restore this session
+    session.browserSessionToken = JSON.stringify(authInfo, null, '\t');
+    fs.writeFileSync(`${session.tokenPatch}/${session.name}.data.json`, JSON.stringify(authInfo, null, '\t')) // save this info to a file
+    //
     console.log('oh hello ' + conn.user.name + ' (' + conn.user.jid + ')')
     //
     return client;

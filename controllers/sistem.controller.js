@@ -180,9 +180,15 @@ router.post("/QRCode", upload.none(''), verifyToken.verify, async (req, res, nex
       if (req.body.View === true) {
         var xSession = session.qrcode;
         if (xSession) {
-          var page = `<html><head></head><body> <img src="${xSession}" alt="QR Code" id="qrcode"></body> <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.1/socket.io.js" integrity="sha512-vGcPDqyonHb0c11UofnOKdSAt5zYRpKI4ow+v6hat4i96b7nHSn8PQyk0sT5L9RECyksp+SztCPP6bqeeGaRKg==" crossorigin="anonymous"></script> <script>$(document).ready(function(){var socket=io.connect({'transports':['websocket']});socket.on('qr',function(msg){$('#qrcode').attr('src',msg);});});</script> </html>`;
-          res.write(page);
-          res.end();
+          const imageBuffer = `data:image/png;base64,${xSession}`;
+          //
+          res.writeHead(200, {
+            'Content-Type': 'image/png',
+            'Content-Length': imageBuffer.length
+          });
+          //
+          res.status(200).end(imageBuffer);
+          //
         } else {
           var getQRCode = {
             result: 'error',
