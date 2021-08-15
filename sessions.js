@@ -578,13 +578,9 @@ module.exports = class Sessions {
     conn.connectOptions.maxRetries = 10
     conn.chatOrderingKey = waChatKey(true) // order chats such that pinned chats are on top
     //
-    const client = await conn.connect().catch((err) => {
-      console.log(err);
-    });
-    //
     let lastqr = null;
     let attempts = 0;
-    client.on('qr', (qr) => {
+    conn.on('qr', (qr) => {
       lastqr = qr;
       attempts++;
       //
@@ -596,6 +592,12 @@ module.exports = class Sessions {
       session.qrcode = qr;
       //
     });
+    //
+    const client = await conn.connect().catch((err) => {
+      console.log(err);
+    });
+    //
+
     //
     //
     // credentials are updated on every connect
