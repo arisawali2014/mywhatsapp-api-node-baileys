@@ -569,14 +569,23 @@ module.exports = class Sessions {
     session.status = "qrRead";
     session.message = 'Sistema iniciando e indisponivel para uso';
     //
-    const client = new WAConnection()
-    client.browserDescription = ['ConnectZap', 'Chrome', '87']
-    fs.existsSync(`${session.tokenPatch}/auth_info/${session.name}.data.json`) && client.loadAuthInfo(`${session.tokenPatch}/auth_info/${session.name}.data.json`);
-    client.autoReconnect = ReconnectMode.onConnectionLost // only automatically reconnect when the connection breaks
-    client.logger.level = 'debug' // set to 'debug' to see what kind of stuff you can implement
+    const conn = new WAConnection()
+    conn.browserDescription = ['ConnectZap', 'Chrome', '87']
+    fs.existsSync(`${session.tokenPatch}/auth_info/${session.name}.data.json`) && conn.loadAuthInfo(`${session.tokenPatch}/auth_info/${session.name}.data.json`);
+    conn.autoReconnect = ReconnectMode.onConnectionLost // only automatically reconnect when the connection breaks
+    conn.logger.level = 'debug' // set to 'debug' to see what kind of stuff you can implement
     // attempt to reconnect at most 10 times in a row
-    client.connectOptions.maxRetries = 10
-    client.chatOrderingKey = waChatKey(true) // order chats such that pinned chats are on top
+    conn.connectOptions.maxRetries = 10
+    conn.chatOrderingKey = waChatKey(true) // order chats such that pinned chats are on top
+    //
+    // credentials are updated on every connect
+    const authInfo = conn.base64EncodedAuthInfo() // get all the auth info we need to restore this session
+    fs.writeFileSync('./auth_info.json', JSON.stringify(authInfo, null, '\t')) // save this info to a file
+
+    console.log('oh hello ' + conn.user.name + ' (' + conn.user.jid + ')')
+    //
+    const client = conn;
+    //
     return client;
   } //initSession
   //
@@ -591,11 +600,13 @@ module.exports = class Sessions {
   static async setup(SessionName) {
     console.log("- Sinstema iniciando");
     var session = Sessions.getSession(SessionName);
-    await session.client.then(async (client) => {
-      await client.connect();
+    let lastqr = null;
+    let attempts = 0;
+    await session.client.then(client => {
+      await client.connect().catch((err) => {
+        console.log(err);
+      });
       //
-      let lastqr = null;
-      let attempts = 0;
       client.on('qr', (qr) => {
         lastqr = qr;
         attempts++;
@@ -604,12 +615,10 @@ module.exports = class Sessions {
         session.attempts = attempts;
         //
         console.log("- Captura do QR-Code");
-        console.log(qr);
         //console.log(base64Qrimg);
         session.qrcode = qr;
         //
       });
-      //
       //
       client.on('chats-received', ({
         hasNewChats
