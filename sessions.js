@@ -18,6 +18,8 @@ const {
   ProxyAgent,
   waChatKey,
 } = require('@adiwajshing/baileys');
+const newinstance = require('./newinstance')
+const mkEvents = require('./events')
 const conn = require('./config/dbConnection').promise();
 const serverConfig = require("./config/server.config.json");
 const io = require("socket.io-client"),
@@ -567,7 +569,15 @@ module.exports = class Sessions {
     session.status = "qrRead";
     session.message = 'Sistema iniciando e indisponivel para uso';
     //
-
+    const client = new WAConnection()
+    client.browserDescription = ['ConnectZap', 'Chrome', '87']
+    fs.existsSync(`${session.tokenPatch}/auth_info/${session.name}.data.json`) && client.loadAuthInfo(`${session.tokenPatch}/auth_info/${session.name}.data.json`);
+    client.autoReconnect = ReconnectMode.onConnectionLost // only automatically reconnect when the connection breaks
+    client.logger.level = 'debug' // set to 'debug' to see what kind of stuff you can implement
+    // attempt to reconnect at most 10 times in a row
+    client.connectOptions.maxRetries = 10
+    client.chatOrderingKey = waChatKey(true) // order chats such that pinned chats are on top
+    await client.connect();
     //
     return client;
   } //initSession
@@ -584,7 +594,19 @@ module.exports = class Sessions {
     console.log("- Sinstema iniciando");
     var session = Sessions.getSession(SessionName);
     await session.client.then(client => {
-
+      client.on('chats-received', ({
+        hasNewChats
+      }) => {
+        console.log(`you have ${client.chats.length} chats, new chats available: ${hasNewChats}`);
+      });
+      //
+      client.on('contacts-received', () => {
+        console.log(`you have ${Object.keys(client.contacts).length} contacts`);
+      });
+      //
+      client.on('initial-data-received', () => {
+        console.log('received all initial messages');
+      });
     });
   } //setup
   //

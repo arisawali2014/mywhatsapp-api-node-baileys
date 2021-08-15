@@ -36,7 +36,7 @@ module.exports = () => {
   app.use("/sistema", sistem);
   //
   app.get('/', function(req, res) {
-    res.status(200).send('Server WPPConnect is running');
+    res.status(200).send('Server Baileys is running API. https://github.com/AlanMartines/mywhatsapp-api-node-baileys');
   });
   //
   const sockets = {};
