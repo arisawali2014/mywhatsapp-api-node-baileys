@@ -180,9 +180,15 @@ router.post("/QRCode", upload.none(''), verifyToken.verify, async (req, res, nex
       if (req.body.View === true) {
         var xSession = session.qrcode;
         if (xSession) {
-          var page = `<html><head></head><body> <img src="${xSession}" alt="QR Code" id="qrcode"></body></html>`;
-          res.write(page);
-          res.end();
+          const imageBuffer = `data:image/png;base64,${xSession}`;
+          //
+          res.writeHead(200, {
+            'Content-Type': 'image/png',
+            'Content-Length': imageBuffer.length
+          });
+          //
+          res.status(200).end(imageBuffer);
+          //
         } else {
           var getQRCode = {
             result: 'error',
