@@ -602,7 +602,7 @@ module.exports = class Sessions {
     var session = Sessions.getSession(SessionName);
     let lastqr = null;
     let attempts = 0;
-    await session.client.then(client => {
+    await session.client.then(async (client) => {
       await client.connect().catch((err) => {
         console.log(err);
       });
