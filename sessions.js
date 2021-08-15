@@ -579,6 +579,23 @@ module.exports = class Sessions {
     client.chatOrderingKey = waChatKey(true) // order chats such that pinned chats are on top
     await client.connect();
     //
+    let lastqr = null;
+    let attempts = 0;
+    client.on('qr', (qr) => {
+      lastqr = qr;
+      attempts++;
+      //
+      console.log('- Número de tentativas de ler o qr-code:', attempts);
+      session.attempts = attempts;
+      //
+      console.log("- Captura do QR-Code");
+      console.log(qr);
+      //console.log(base64Qrimg);
+      session.qrcode = qr;
+      //
+    });
+    //
+    //
     return client;
   } //initSession
   //
@@ -593,22 +610,9 @@ module.exports = class Sessions {
   static async setup(SessionName) {
     console.log("- Sinstema iniciando");
     var session = Sessions.getSession(SessionName);
-    let lastqr = null;
-    let attempts = 0;
+
     await session.client.then(client => {
-      client.on('qr', (qr) => {
-        lastqr = qr;
-        attempts++;
-        //
-        console.log('- Número de tentativas de ler o qr-code:', attempts);
-        session.attempts = attempts;
-        //
-        console.log("- Captura do QR-Code");
-        //console.log(base64Qrimg);
-        session.qrcode = qr;
-        //
-      });
-      //
+
       client.on('chats-received', ({
         hasNewChats
       }) => {
