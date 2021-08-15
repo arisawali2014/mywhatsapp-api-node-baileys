@@ -578,13 +578,31 @@ module.exports = class Sessions {
     conn.connectOptions.maxRetries = 10
     conn.chatOrderingKey = waChatKey(true) // order chats such that pinned chats are on top
     //
+    const client = await conn.connect().catch((err) => {
+      console.log(err);
+    });
+    //
+    let lastqr = null;
+    let attempts = 0;
+    client.on('qr', (qr) => {
+      lastqr = qr;
+      attempts++;
+      //
+      console.log('- Número de tentativas de ler o qr-code:', attempts);
+      session.attempts = attempts;
+      //
+      console.log("- Captura do QR-Code");
+      //console.log(base64Qrimg);
+      session.qrcode = qr;
+      //
+    });
+    //
+    //
     // credentials are updated on every connect
     const authInfo = conn.base64EncodedAuthInfo() // get all the auth info we need to restore this session
     fs.writeFileSync('./auth_info.json', JSON.stringify(authInfo, null, '\t')) // save this info to a file
 
     console.log('oh hello ' + conn.user.name + ' (' + conn.user.jid + ')')
-    //
-    const client = conn;
     //
     return client;
   } //initSession
@@ -600,26 +618,8 @@ module.exports = class Sessions {
   static async setup(SessionName) {
     console.log("- Sinstema iniciando");
     var session = Sessions.getSession(SessionName);
-    let lastqr = null;
-    let attempts = 0;
-    await session.client.then(async (client) => {
-      await client.connect().catch((err) => {
-        console.log(err);
-      });
-      //
-      client.on('qr', (qr) => {
-        lastqr = qr;
-        attempts++;
-        //
-        console.log('- Número de tentativas de ler o qr-code:', attempts);
-        session.attempts = attempts;
-        //
-        console.log("- Captura do QR-Code");
-        //console.log(base64Qrimg);
-        session.qrcode = qr;
-        //
-      });
-      //
+    await session.client.then(client => {
+
       client.on('chats-received', ({
         hasNewChats
       }) => {
