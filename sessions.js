@@ -651,7 +651,14 @@ module.exports = class Sessions {
     console.log("- Sinstema iniciando");
     var session = Sessions.getSession(SessionName);
     await session.client.then(client => {
-
+      //
+      client.conn.on('open', () => {
+        // save credentials whenever updated
+        console.log(`credentials updated!`)
+        const authInfo = conn.base64EncodedAuthInfo() // get all the auth info we need to restore this session
+        fs.writeFileSync('./auth_info.json', JSON.stringify(authInfo, null, '\t')) // save this info to a file
+      });
+      //
       client.conn.on('chats-received', ({
         hasNewChats
       }) => {
