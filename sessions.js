@@ -689,7 +689,7 @@ module.exports = class Sessions {
   static async setup(SessionName) {
     console.log("- Sinstema iniciando");
     var session = Sessions.getSession(SessionName);
-    await session.client.then(client => {
+    await session.client.then(async (client) => {
 
       const sharedstate = {}
       sharedstate.client = client
