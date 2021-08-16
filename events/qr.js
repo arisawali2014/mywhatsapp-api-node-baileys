@@ -1,5 +1,8 @@
-const mkQr = ({ number, sharedstate }) => async (...args) => {
-  console.log(`${number} qr`)
+const mkQr = ({
+  SessionName,
+  sharedstate
+}) => async (...args) => {
+  console.log(`${SessionName} qr`)
 
 }
 

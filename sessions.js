@@ -8,7 +8,7 @@ const {
 } = require('p-iteration');
 const axios = require('axios');
 const {
-  WAConnection,
+  connonnection,
   MessageType,
   Presence,
   MessageOptions,
@@ -17,7 +17,7 @@ const {
   WA_MESSAGE_STUB_TYPES,
   ReconnectMode,
   ProxyAgent,
-  waChatKey,
+  connhatKey,
 } = require('@adiwajshing/baileys');
 const newinstance = require('./newinstance')
 const mkEvents = require('./events')
@@ -570,12 +570,13 @@ module.exports = class Sessions {
     session.status = "qrRead";
     session.message = 'Sistema iniciando e indisponivel para uso';
     //
-    const conn = new WAConnection();
+    const conn = new connonnection();
     conn.connectOptions = {
+      regenerateQRIntervalMs: 15000,
       /** fails the connection if no data is received for X seconds */
       maxIdleTimeMs: 60000,
       /** maximum attempts to connect */
-      maxRetries: 10,
+      maxRetries: Infinity,
       /** max time for the phone to respond to a connectivity test */
       phoneResponseTime: 15000,
       /** minimum time between new connections */
@@ -585,18 +586,20 @@ module.exports = class Sessions {
       /** log QR to terminal */
       logQR: true
     };
+    conn.autoReconnect = true; // auto reconnect on disconnect
+    conn.logUnhandledMessages = false;
     conn.browserDescription = ['ConnectZap', 'Chrome', '87']
-    fs.existsSync(`${session.tokenPatch}/${session.name}.data.json`) && conn.loadAuthInfo(`${session.tokenPatch}/${session.name}.data.json`);
+    fs.existsSync(`${session.tokenPatch}/${SessionName}.data.json`) && conn.loadAuthInfo(`${session.tokenPatch}/${SessionName}.data.json`);
     conn.autoReconnect = ReconnectMode.onConnectionLost; // only automatically reconnect when the connection breaks
     conn.logger.level = 'debug'; // set to 'debug' to see what kind of stuff you can implement
     // attempt to reconnect at most 10 times in a row
     conn.connectOptions.maxRetries = 10;
-    conn.chatOrderingKey = waChatKey(true); // order chats such that pinned chats are on top
+    conn.chatOrderingKey = connhatKey(true); // order chats such that pinned chats are on top
     //
     let lastqr = null;
     let attempts = 0;
     //
-    conn.on("qr", (qr_data) => {
+    conn.on("qr", (qr), (qr_data) => {
       let qr_img_buffer = qr.imageSync(qr_data);
       lastqr = qr;
       attempts++;
@@ -609,23 +612,44 @@ module.exports = class Sessions {
       session.qrcode = qr_img_buffer;
       //
     });
+    //
     /*
-    conn.on('qr', (qr) => {
-      lastqr = qr;
-      attempts++;
-      //
-      console.log('- Número de tentativas de ler o qr-code:', attempts);
-      session.attempts = attempts;
-      //
-      console.log("- Captura do QR-Code");
-      //console.log(base64Qrimg);
-      session.qrcode = qr;
-      //
-    });
+    const sharedstate = {}
+    sharedstate.conn = conn
+
+    const events = mkEvents({
+      SessionName,
+      sharedstate
+    })
+    conn.on('blocklist-update', events.blocklistUpdate);
+    conn.on('chat-new', events.chatNew);
+    conn.on('chats-received', events.chatsReceived);
+    conn.on('chat-update', events.chatUpdate);
+    conn.on('close', events.close);
+    conn.on('connecting', events.connecting);
+    conn.on('connection-phone-change', events.connectionPhoneChange);
+    conn.on('connection-validated', events.connectionValidated);
+    conn.on('contacts-received', events.contactsReceived);
+    conn.on('contact-update', events.contactUpdate);
+    conn.on('credentials-updated', events.credentialsUpdated);
+    conn.on('group-participants-update', events.groupParticipantsUpdate);
+    conn.on('group-update', events.groupUpdate);
+    conn.on('message-status-update', events.messageStatusUpdate);
+    conn.on('open', events.open);
+    conn.on('qr', events.qr);
+    conn.on('received-pong', events.receivedPong);
+    conn.on('ws-close', events.wsClose);
+
+    await conn.connect()
+
+    patchpanel.set(number, {
+      conn,
+      sharedstate
+    })
 		*/
     //
     const client = await conn.connect().catch((err) => {
-      console.log(err);
+      console.log("- Erro:", err);
     });
     //
     // credentials are updated on every connect
@@ -633,7 +657,7 @@ module.exports = class Sessions {
     session.browserSessionToken = JSON.stringify(authInfo, null, '\t');
     fs.writeFileSync(`${session.tokenPatch}/${session.name}.data.json`, JSON.stringify(authInfo, null, '\t')) // save this info to a file
     //
-    console.log('oh hello ' + conn.user.name + ' (' + conn.user.jid + ')')
+    //console.log('oh hello ' + conn.user.name + ' (' + conn.user.jid + ')');
     //
     return client;
   } //initSession
@@ -1307,7 +1331,7 @@ module.exports = class Sessions {
               "pushname": resultAllContacts.pushname,
               "formattedName": resultAllContacts.formattedName,
               "isMyContact": resultAllContacts.isMyContact,
-              "isWAContact": resultAllContacts.isWAContact,
+              "isconnontact": resultAllContacts.isconnontact,
               "isBusiness": resultAllContacts.isBusiness,
             });
           }
@@ -1358,7 +1382,7 @@ module.exports = class Sessions {
               "name": resultAllContacts.name,
               "formattedName": resultAllContacts.formattedName,
               "isMyContact": resultAllContacts.isMyContact,
-              "isWAContact": resultAllContacts.isWAContact,
+              "isconnontact": resultAllContacts.isconnontact,
               "isBusiness": resultAllContacts.isBusiness,
               "profilePicThumbObj": {
                 "eurl": resultAllContacts.profilePicThumbObj.eurl,
