@@ -707,11 +707,6 @@ module.exports = class Sessions {
         console.log('- State:', update)
       });
       //
-      client.onReadyForPhoneAuthentication = ([ref, publicKey, clientID]) => {
-        const str = ref + "," + publicKey + "," + clientID
-        console.log(str)
-      }
-      //
       await client.connect().then((user) => {
         // credentials are updated on every connect
         const authInfo = client.base64EncodedAuthInfo(); // get all the auth info we need to restore this session
