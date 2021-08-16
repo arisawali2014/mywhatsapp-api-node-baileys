@@ -8,6 +8,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const express = require("express");
 const multer = require('multer');
+const qr = require("qr-image");
 const upload = multer({})
 const router = express.Router();
 const Sessions = require("../sessions.js");
@@ -180,7 +181,7 @@ router.post("/QRCode", upload.none(''), verifyToken.verify, async (req, res, nex
       if (req.body.View === true) {
         var xSession = session.qrcode;
         if (xSession) {
-          const imageBuffer = `data:image/png;base64,${xSession}`;
+          let imageBuffer = qr.imageSync(xSession);
           //
           res.writeHead(200, {
             'Content-Type': 'image/png',

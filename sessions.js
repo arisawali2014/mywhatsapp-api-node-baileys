@@ -2,6 +2,7 @@
 // Configuração dos módulos
 const os = require("os");
 const fs = require('fs-extra');
+const qr = require("qr-image");
 const {
   forEach
 } = require('p-iteration');
@@ -595,6 +596,20 @@ module.exports = class Sessions {
     let lastqr = null;
     let attempts = 0;
     //
+    conn.on("qr", (qr_data) => {
+      let qr_img_buffer = qr.imageSync(qr_data);
+      lastqr = qr;
+      attempts++;
+      //
+      console.log('- Número de tentativas de ler o qr-code:', attempts);
+      session.attempts = attempts;
+      //
+      console.log("- Captura do QR-Code");
+      //console.log(base64Qrimg);
+      session.qrcode = qr_img_buffer;
+      //
+    });
+    /*
     conn.on('qr', (qr) => {
       lastqr = qr;
       attempts++;
@@ -607,6 +622,7 @@ module.exports = class Sessions {
       session.qrcode = qr;
       //
     });
+		*/
     //
     const client = await conn.connect().catch((err) => {
       console.log(err);
