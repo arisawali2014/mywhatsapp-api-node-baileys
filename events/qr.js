@@ -1,3 +1,4 @@
+const Sessions = require("../sessions.js");
 const mkQr = ({
   SessionName,
   sharedstate

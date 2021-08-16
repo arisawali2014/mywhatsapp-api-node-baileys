@@ -614,6 +614,7 @@ module.exports = class Sessions {
     let lastqr = null;
     let attempts = 0;
     //
+    /*
     client.on("qr", (qr_data) => {
       let qr_img_buffer = qr.imageSync(qr_data);
       lastqr = qr;
@@ -629,6 +630,7 @@ module.exports = class Sessions {
       session.qrcode = qr_img_buffer;
       //
     });
+		*/
     /*
     conn.on('qr', (qr) => {
       lastqr = qr;
@@ -726,7 +728,7 @@ module.exports = class Sessions {
       client.on('group-update', events.groupUpdate);
       client.on('message-status-update', events.messageStatusUpdate);
       client.on('open', events.open);
-      //client.on('qr', events.qr);
+      client.on('qr', events.qr);
       client.on('received-pong', events.receivedPong);
       client.on('ws-close', events.wsClose);
 
