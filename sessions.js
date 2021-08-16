@@ -19,8 +19,9 @@ const {
   ProxyAgent,
   waChatKey,
 } = require('@adiwajshing/baileys');
-const newinstance = require('./newinstance')
-const mkEvents = require('./events')
+const newinstance = require('./newinstance');
+const mkEvents = require('./events');
+const patchpanel = new Map();
 const conn = require('./config/dbConnection').promise();
 const serverConfig = require("./config/server.config.json");
 const io = require("socket.io-client"),
