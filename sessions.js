@@ -597,7 +597,7 @@ module.exports = class Sessions {
     let lastqr = null;
     let attempts = 0;
     //
-    conn.on("qr", (qr), (qr_data) => {
+    conn.on("qr", (qr_data) => {
       let qr_img_buffer = qr.imageSync(qr_data);
       lastqr = qr;
       attempts++;
