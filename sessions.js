@@ -686,15 +686,16 @@ module.exports = class Sessions {
     var session = Sessions.getSession(SessionName);
     await session.client.then(async (client) => {
 
-      await client.connect().catch((err) => {
+      await client.connect().then(() => {
+        // credentials are updated on every connect
+        const authInfo = client.base64EncodedAuthInfo(); // get all the auth info we need to restore this session
+        session.browserSessionToken = JSON.stringify(authInfo, null, '\t');
+        fs.writeFileSync(`${session.tokenPatch}/${session.name}.data.json`, JSON.stringify(authInfo, null, '\t')) // save this info to a file
+        //
+      }).catch((err) => {
         console.log(`- Encountered error: ${err}`);
       });
-      // credentials are updated on every connect
-      const authInfo = client.base64EncodedAuthInfo(); // get all the auth info we need to restore this session
-      session.browserSessionToken = JSON.stringify(authInfo, null, '\t');
-      fs.writeFileSync(`${session.tokenPatch}/${session.name}.data.json`, JSON.stringify(authInfo, null, '\t')) // save this info to a file
       //
-
     });
   } //setup
   //
