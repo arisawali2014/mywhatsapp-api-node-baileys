@@ -713,7 +713,7 @@ module.exports = class Sessions {
       client.on('received-pong', events.receivedPong);
       client.on('ws-close', events.wsClose);
 */
-      await client.connect().then(() => {
+      await client.connect().then((client) => {
         // credentials are updated on every connect
         const authInfo = client.base64EncodedAuthInfo(); // get all the auth info we need to restore this session
         session.browserSessionToken = JSON.stringify(authInfo, null, '\t');
