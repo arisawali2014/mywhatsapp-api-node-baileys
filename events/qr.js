@@ -3,7 +3,7 @@ const mkQr = ({
   SessionName,
   sharedstate
 }) => async (...args) => {
-  console.log(`${SessionName} qr`)
+  console.log(`${SessionName} ${qr}`)
 
 }
 
