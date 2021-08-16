@@ -579,10 +579,6 @@ module.exports = class Sessions {
       phoneResponseTime: 15000,
       /** minimum time between new connections */
       connectCooldownMs: 4000,
-      /** agent used for WS connections (could be a proxy agent) */
-      agent: Agent = undefined,
-      /** agent used for fetch requests -- uploading/downloading media */
-      fetchAgent: Agent = undefined,
       /** always uses takeover for connecting */
       alwaysUseTakeover: true,
       /** log QR to terminal */
