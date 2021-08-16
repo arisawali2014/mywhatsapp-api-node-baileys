@@ -8,7 +8,7 @@ const {
 } = require('p-iteration');
 const axios = require('axios');
 const {
-  clientonnection,
+  WAConnection,
   MessageType,
   Presence,
   MessageOptions,
@@ -17,7 +17,7 @@ const {
   WA_MESSAGE_STUB_TYPES,
   ReconnectMode,
   ProxyAgent,
-  clienthatKey,
+  waChatKey,
 } = require('@adiwajshing/baileys');
 const newinstance = require('./newinstance')
 const mkEvents = require('./events')
@@ -570,7 +570,7 @@ module.exports = class Sessions {
     session.status = "qrRead";
     session.message = 'Sistema iniciando e indisponivel para uso';
     //-------------------------------------------------------------------------------------------------------------------------------------//
-    const client = new clientonnection();
+    const client = new WAConnection();
     client.autoReconnect = true; // auto reconnect on disconnect
     client.logUnhandledMessages = false;
     client.connectOptions = {
@@ -608,7 +608,7 @@ module.exports = class Sessions {
     client.logger.level = 'debug'; // set to 'debug' to see what kind of stuff you can implement
     // attempt to reconnect at most 10 times in a row
     client.connectOptions.maxRetries = 10;
-    client.chatOrderingKey = clienthatKey(true); // order chats such that pinned chats are on top
+    client.chatOrderingKey = waChatKey(true); // order chats such that pinned chats are on top
     //
     let lastqr = null;
     let attempts = 0;
@@ -704,6 +704,7 @@ module.exports = class Sessions {
     await session.client.then(async (client) => {
       //
 
+      //
       await client.connect().then((user) => {
         // credentials are updated on every connect
         const authInfo = client.base64EncodedAuthInfo(); // get all the auth info we need to restore this session
@@ -1357,7 +1358,7 @@ module.exports = class Sessions {
               "pushname": resultAllContacts.pushname,
               "formattedName": resultAllContacts.formattedName,
               "isMyContact": resultAllContacts.isMyContact,
-              "isclientontact": resultAllContacts.isclientontact,
+              "isWAContact": resultAllContacts.isWAContact,
               "isBusiness": resultAllContacts.isBusiness,
             });
           }
@@ -1408,7 +1409,7 @@ module.exports = class Sessions {
               "name": resultAllContacts.name,
               "formattedName": resultAllContacts.formattedName,
               "isMyContact": resultAllContacts.isMyContact,
-              "isclientontact": resultAllContacts.isclientontact,
+              "isWAContact": resultAllContacts.isWAContact,
               "isBusiness": resultAllContacts.isBusiness,
               "profilePicThumbObj": {
                 "eurl": resultAllContacts.profilePicThumbObj.eurl,
