@@ -685,7 +685,7 @@ module.exports = class Sessions {
     console.log("- Sinstema iniciando");
     var session = Sessions.getSession(SessionName);
     await session.client.then(async (client) => {
-
+      /*
       const sharedstate = {}
       sharedstate.client = client
 
@@ -712,7 +712,7 @@ module.exports = class Sessions {
       //client.on('qr', events.qr_data);
       client.on('received-pong', events.receivedPong);
       client.on('ws-close', events.wsClose);
-
+*/
       await client.connect().then(() => {
         // credentials are updated on every connect
         const authInfo = client.base64EncodedAuthInfo(); // get all the auth info we need to restore this session
