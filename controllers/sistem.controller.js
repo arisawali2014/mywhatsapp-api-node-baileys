@@ -179,9 +179,8 @@ router.post("/QRCode", upload.none(''), verifyToken.verify, async (req, res, nex
     case 'qrRead':
       //
       if (req.body.View === true) {
-        var xSession = session.qrcode;
-        if (xSession) {
-          let imageBuffer = qr.imageSync(xSession);
+        var imageBuffer = session.qrcode;
+        if (imageBuffer) {
           //
           res.writeHead(200, {
             'Content-Type': 'image/png',
