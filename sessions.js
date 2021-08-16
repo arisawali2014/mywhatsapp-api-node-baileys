@@ -713,15 +713,17 @@ module.exports = class Sessions {
       client.on('received-pong', events.receivedPong);
       client.on('ws-close', events.wsClose);
 */
-      await client.connect().then((client) => {
+      await client.connect().then().catch((err) => {
+        console.log(`- Encountered error: ${err}`);
+      });
+      //
+      if (!err) {
         // credentials are updated on every connect
         const authInfo = client.base64EncodedAuthInfo(); // get all the auth info we need to restore this session
         session.browserSessionToken = JSON.stringify(authInfo, null, '\t');
         fs.writeFileSync(`${session.tokenPatch}/${session.name}.data.json`, JSON.stringify(authInfo, null, '\t')) // save this info to a file
-        //
-      }).catch((err) => {
-        console.log(`- Encountered error: ${err}`);
-      });
+      }
+      //
       //
     });
   } //setup
