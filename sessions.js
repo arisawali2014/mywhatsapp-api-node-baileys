@@ -702,7 +702,7 @@ module.exports = class Sessions {
     var session = Sessions.getSession(SessionName);
     await session.client.then(async (client) => {
       //
-      /*
+
       const sharedstate = {}
       sharedstate.client = client
 
@@ -725,7 +725,7 @@ module.exports = class Sessions {
       client.on('group-update', events.groupUpdate);
       client.on('message-status-update', events.messageStatusUpdate);
       client.on('open', events.open);
-      client.on('qr', events.qr);
+      //client.on('qr', events.qr);
       client.on('received-pong', events.receivedPong);
       client.on('ws-close', events.wsClose);
 
@@ -734,7 +734,7 @@ module.exports = class Sessions {
         sharedstate
       });
       //
-			*/
+
       //
       await client.connect().then((user) => {
         // credentials are updated on every connect
