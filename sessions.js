@@ -703,13 +703,14 @@ module.exports = class Sessions {
     var session = Sessions.getSession(SessionName);
     await session.client.then(async (client) => {
       //
+      /*
       const sharedstate = {}
       sharedstate.client = client
 
       const events = mkEvents({
         SessionName,
         sharedstate
-      })
+      });
       client.on('blocklist-update', events.blocklistUpdate)
       client.on('chat-new', events.chatNew)
       client.on('chats-received', events.chatsReceived)
@@ -734,6 +735,7 @@ module.exports = class Sessions {
         sharedstate
       })
       //
+			*/
       await client.connect().then((user) => {
         // credentials are updated on every connect
         const authInfo = client.base64EncodedAuthInfo(); // get all the auth info we need to restore this session
