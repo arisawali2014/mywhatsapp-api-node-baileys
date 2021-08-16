@@ -652,17 +652,17 @@ module.exports = class Sessions {
     var session = Sessions.getSession(SessionName);
     await session.client.then(client => {
 
-      client.on('chats-received', ({
+      client.conn.on('chats-received', ({
         hasNewChats
       }) => {
         console.log(`you have ${client.chats.length} chats, new chats available: ${hasNewChats}`);
       });
       //
-      client.on('contacts-received', () => {
+      client.conn.on('contacts-received', () => {
         console.log(`you have ${Object.keys(client.contacts).length} contacts`);
       });
       //
-      client.on('initial-data-received', () => {
+      client.conn.on('initial-data-received', () => {
         console.log('received all initial messages');
       });
     });
