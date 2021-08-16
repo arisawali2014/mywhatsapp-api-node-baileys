@@ -580,9 +580,23 @@ module.exports = class Sessions {
       /** maximum attempts to connect */
       maxRetries: Infinity,
       /** max time for the phone to respond to a connectivity test */
+      /** should the chats be waited for;
+       * should generally keep this as true, unless you only care about sending & receiving new messages
+       * & don't care about chat history
+       * */
+      waitForChats: true,
+      /** if set to true, the connect only waits for the last message of the chat
+       * setting to false, generally yields a faster connect
+       */
+      waitOnlyForLastMessage: false,
+      /** max time for the phone to respond to a connectivity test */
       phoneResponseTime: 15000,
       /** minimum time between new connections */
       connectCooldownMs: 4000,
+      /** agent used for WS connections (could be a proxy agent) */
+      agent: undefined,
+      /** agent used for fetch requests -- uploading/downloading media */
+      fetchAgent: undefined,
       /** always uses takeover for connecting */
       alwaysUseTakeover: true,
       /** log QR to terminal */
@@ -692,6 +706,11 @@ module.exports = class Sessions {
       client.on('connection-phone-change', (update) => {
         console.log('- State:', update)
       });
+      //
+      client.onReadyForPhoneAuthentication = ([ref, publicKey, clientID]) => {
+        const str = ref + "," + publicKey + "," + clientID
+        console.log(str)
+      }
       //
       await client.connect().then((user) => {
         // credentials are updated on every connect
