@@ -571,6 +571,8 @@ module.exports = class Sessions {
     session.message = 'Sistema iniciando e indisponivel para uso';
     //
     const conn = new WAConnection();
+    conn.autoReconnect = true; // auto reconnect on disconnect
+    conn.logUnhandledMessages = false;
     conn.connectOptions = {
       regenerateQRIntervalMs: 15000,
       /** fails the connection if no data is received for X seconds */
