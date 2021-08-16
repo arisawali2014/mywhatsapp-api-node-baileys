@@ -8,7 +8,7 @@ const {
 } = require('p-iteration');
 const axios = require('axios');
 const {
-  WAConnection,
+  clientonnection,
   MessageType,
   Presence,
   MessageOptions,
@@ -17,7 +17,7 @@ const {
   WA_MESSAGE_STUB_TYPES,
   ReconnectMode,
   ProxyAgent,
-  waChatKey,
+  clienthatKey,
 } = require('@adiwajshing/baileys');
 const newinstance = require('./newinstance')
 const mkEvents = require('./events')
@@ -570,10 +570,10 @@ module.exports = class Sessions {
     session.status = "qrRead";
     session.message = 'Sistema iniciando e indisponivel para uso';
     //-------------------------------------------------------------------------------------------------------------------------------------//
-    const conn = new WAConnection();
-    conn.autoReconnect = true; // auto reconnect on disconnect
-    conn.logUnhandledMessages = false;
-    conn.connectOptions = {
+    const client = new clientonnection();
+    client.autoReconnect = true; // auto reconnect on disconnect
+    client.logUnhandledMessages = false;
+    client.connectOptions = {
       regenerateQRIntervalMs: 15000,
       /** fails the connection if no data is received for X seconds */
       maxIdleTimeMs: 60000,
@@ -588,18 +588,18 @@ module.exports = class Sessions {
       /** log QR to terminal */
       logQR: true
     };
-    conn.browserDescription = ['ConnectZap', 'Chrome', '87']
+    client.browserDescription = ['ConnectZap', 'Chrome', '87']
     fs.existsSync(`${session.tokenPatch}/${session.name}.data.json`) && conn.loadAuthInfo(`${session.tokenPatch}/${session.name}.data.json`);
-    conn.autoReconnect = ReconnectMode.onConnectionLost; // only automatically reconnect when the connection breaks
-    conn.logger.level = 'debug'; // set to 'debug' to see what kind of stuff you can implement
+    client.autoReconnect = ReconnectMode.onConnectionLost; // only automatically reconnect when the connection breaks
+    client.logger.level = 'debug'; // set to 'debug' to see what kind of stuff you can implement
     // attempt to reconnect at most 10 times in a row
-    conn.connectOptions.maxRetries = 10;
-    conn.chatOrderingKey = waChatKey(true); // order chats such that pinned chats are on top
+    client.connectOptions.maxRetries = 10;
+    client.chatOrderingKey = clienthatKey(true); // order chats such that pinned chats are on top
     //
     let lastqr = null;
     let attempts = 0;
     //
-    conn.on("qr", (qr_data) => {
+    client.on("qr", (qr_data) => {
       let qr_img_buffer = qr.imageSync(qr_data);
       lastqr = qr;
       attempts++;
@@ -627,22 +627,53 @@ module.exports = class Sessions {
     });
 		*/
     //
-    conn.on('open', () => {
-      // save credentials whenever updated
-      console.log(`- Credentials updated!`)
-      const authInfo = conn.base64EncodedAuthInfo() // get all the auth info we need to restore this session
-      fs.writeFileSync(`${session.tokenPatch}/${session.name}.data.json`, JSON.stringify(authInfo, null, '\t')) // save this info to a file
-    });
-    //
-    //
-    const client = await conn.connect().catch((err) => {
-      console.log(err);
-    });
-    //
+    /*
+        conn.on('open', () => {
+          // save credentials whenever updated
+          console.log(`- Credentials updated!`)
+          const authInfo = conn.base64EncodedAuthInfo() // get all the auth info we need to restore this session
+          fs.writeFileSync(`${session.tokenPatch}/${session.name}.data.json`, JSON.stringify(authInfo, null, '\t')) // save this info to a file
+        });
+        //
+        client.conn.on('chats-received', ({
+          hasNewChats
+        }) => {
+          console.log(`you have ${client.chats.length} chats, new chats available: ${hasNewChats}`);
+        });
+        //
+        client.conn.on('contacts-received', () => {
+          console.log(`you have ${Object.keys(client.contacts).length} contacts`);
+        });
+        //
+        client.conn.on('initial-data-received', () => {
+          console.log('received all initial messages');
+        });
+        //
+        // example of custom functionality for tracking battery
+        client.conn.on('CB:action,,battery', json => {
+          const batteryLevelStr = json[2][0][1].value
+          const batterylevel = parseInt(batteryLevelStr)
+          console.log('battery level: ' + batterylevel)
+        });
+        //
+        client.conn.on('close', ({
+          reason,
+          isReconnecting
+        }) => (
+          console.log('oh no got disconnected: ' + reason + ', reconnecting: ' + isReconnecting)
+        ));
+        //
+        const client = await conn.connect().catch((err) => {
+          console.log(err);
+        });
+        //
+    */
+    /*
     // credentials are updated on every connect
-    const authInfo = conn.base64EncodedAuthInfo(); // get all the auth info we need to restore this session
+    const authInfo = client.base64EncodedAuthInfo(); // get all the auth info we need to restore this session
     session.browserSessionToken = JSON.stringify(authInfo, null, '\t');
     fs.writeFileSync(`${session.tokenPatch}/${session.name}.data.json`, JSON.stringify(authInfo, null, '\t')) // save this info to a file
+		*/
     //
     return client;
   } //initSession
@@ -660,33 +691,35 @@ module.exports = class Sessions {
     var session = Sessions.getSession(SessionName);
     await session.client.then(client => {
 
-      client.conn.on('chats-received', ({
-        hasNewChats
-      }) => {
-        console.log(`you have ${client.chats.length} chats, new chats available: ${hasNewChats}`);
+      const sharedstate = {}
+      sharedstate.client = client
+
+      const events = mkEvents({
+        number,
+        sharedstate
+      })
+      client.on('blocklist-update', events.blocklistUpdate)
+      client.on('chat-new', events.chatNew)
+      client.on('chats-received', events.chatsReceived)
+      client.on('chat-update', events.chatUpdate)
+      client.on('close', events.close)
+      client.on('connecting', events.connecting)
+      client.on('connection-phone-change', events.connectionPhoneChange)
+      client.on('connection-validated', events.connectionValidated)
+      client.on('contacts-received', events.contactsReceived)
+      client.on('contact-update', events.contactUpdate)
+      client.on('credentials-updated', events.credentialsUpdated)
+      client.on('group-participants-update', events.groupParticipantsUpdate)
+      client.on('group-update', events.groupUpdate)
+      client.on('message-status-update', events.messageStatusUpdate)
+      client.on('open', events.open)
+      client.on('qr', events.qr)
+      client.on('received-pong', events.receivedPong)
+      client.on('ws-close', events.wsClose)
+
+      await client.connect().catch((err) => {
+        console.log(err);
       });
-      //
-      client.conn.on('contacts-received', () => {
-        console.log(`you have ${Object.keys(client.contacts).length} contacts`);
-      });
-      //
-      client.conn.on('initial-data-received', () => {
-        console.log('received all initial messages');
-      });
-      //
-      /* example of custom functionality for tracking battery */
-      client.conn.on('CB:action,,battery', json => {
-        const batteryLevelStr = json[2][0][1].value
-        const batterylevel = parseInt(batteryLevelStr)
-        console.log('battery level: ' + batterylevel)
-      });
-      //
-      client.conn.on('close', ({
-        reason,
-        isReconnecting
-      }) => (
-        console.log('oh no got disconnected: ' + reason + ', reconnecting: ' + isReconnecting)
-      ));
     });
   } //setup
   //
@@ -1330,7 +1363,7 @@ module.exports = class Sessions {
               "pushname": resultAllContacts.pushname,
               "formattedName": resultAllContacts.formattedName,
               "isMyContact": resultAllContacts.isMyContact,
-              "isWAContact": resultAllContacts.isWAContact,
+              "isclientontact": resultAllContacts.isclientontact,
               "isBusiness": resultAllContacts.isBusiness,
             });
           }
@@ -1381,7 +1414,7 @@ module.exports = class Sessions {
               "name": resultAllContacts.name,
               "formattedName": resultAllContacts.formattedName,
               "isMyContact": resultAllContacts.isMyContact,
-              "isWAContact": resultAllContacts.isWAContact,
+              "isclientontact": resultAllContacts.isclientontact,
               "isBusiness": resultAllContacts.isBusiness,
               "profilePicThumbObj": {
                 "eurl": resultAllContacts.profilePicThumbObj.eurl,
