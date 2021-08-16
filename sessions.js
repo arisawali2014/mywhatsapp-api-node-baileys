@@ -608,6 +608,7 @@ module.exports = class Sessions {
       session.attempts = attempts;
       //
       console.log("- Captura do QR-Code");
+      console.log(qr_data);
       //console.log(base64Qrimg);
       session.qrcode = qr_img_buffer;
       //
