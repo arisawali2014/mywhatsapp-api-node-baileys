@@ -1,5 +1,5 @@
-const mkGroupUpdate = ({ number, sharedstate }) => async (...args) => {
-  console.log(`${number} groupUpdate`)
+const mkGroupUpdate = ({ SessionName, sharedstate }) => async (...args) => {
+  console.log(`${SessionName} groupUpdate`)
 
 }
 

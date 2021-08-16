@@ -1,5 +1,5 @@
-const mkWsClose = ({ number, sharedstate }) => async (...args) => {
-  console.log(`${number} wsClose`)
+const mkWsClose = ({ SessionName, sharedstate }) => async (...args) => {
+  console.log(`${SessionName} wsClose`)
 
 }
 

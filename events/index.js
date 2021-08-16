@@ -21,30 +21,102 @@ const mkContactUpdate = require('./contactUpdate')
 const mkUserPresenceUpdate = require('./userPresenceUpdate')
 const mkUserStatusUpdate = require('./userStatusUpdate')
 
-const mkEvents = ({ number, sharedstate }) => ({
-  blocklistUpdate: mkBlocklistUpdate({ number, sharedstate }),
-  chatNew: mkChatNew({ number, sharedstate }),
-  chatUpdate: mkChatUpdate({ number, sharedstate }),
-  chatUpdate: mkChatUpdate({ number, sharedstate }),
-  chatsReceived: mkChatsReceived({ number, sharedstate }),
-  close: mkClose({ number, sharedstate }),
-  connecting: mkConnecting({ number, sharedstate }),
-  connectionPhoneChange: mkConnectionPhoneChange({ number, sharedstate }),
-  connectionValidated: mkConnectionValidated({ number, sharedstate }),
-  contactUpdate: mkContactUpdate({ number, sharedstate }),
-  contactsReceived: mkContactsReceived({ number, sharedstate }),
-  credentialsUpdated: mkCredentialsUpdated({ number, sharedstate }),
-  groupParticipantsUpdate: mkGroupParticipantsUpdate({ number, sharedstate }),
-  groupUpdate: mkGroupUpdate({ number, sharedstate }),
-  messageNew: mkMessageNew({ number, sharedstate }),
-  messageStatusUpdate: mkMessageStatusUpdate({ number, sharedstate }),
-  messageUpdate: mkMessageUpdate({ number, sharedstate }),
-  open: mkOpen({ number, sharedstate }),
-  qr: mkQr({ number, sharedstate }),
-  receivedPong: mkReceivedPong({ number, sharedstate }),
-  wsClose: mkWsClose({ number, sharedstate }),
-  userPresenceUpdate: mkUserPresenceUpdate({ number, sharedstate }),
-  userStatusUpdate: mkUserStatusUpdate({ number, sharedstate })
+const mkEvents = ({
+  SessionName,
+  sharedstate
+}) => ({
+  blocklistUpdate: mkBlocklistUpdate({
+    SessionName,
+    sharedstate
+  }),
+  chatNew: mkChatNew({
+    SessionName,
+    sharedstate
+  }),
+  chatUpdate: mkChatUpdate({
+    SessionName,
+    sharedstate
+  }),
+  chatUpdate: mkChatUpdate({
+    SessionName,
+    sharedstate
+  }),
+  chatsReceived: mkChatsReceived({
+    SessionName,
+    sharedstate
+  }),
+  close: mkClose({
+    SessionName,
+    sharedstate
+  }),
+  connecting: mkConnecting({
+    SessionName,
+    sharedstate
+  }),
+  connectionPhoneChange: mkConnectionPhoneChange({
+    SessionName,
+    sharedstate
+  }),
+  connectionValidated: mkConnectionValidated({
+    SessionName,
+    sharedstate
+  }),
+  contactUpdate: mkContactUpdate({
+    SessionName,
+    sharedstate
+  }),
+  contactsReceived: mkContactsReceived({
+    SessionName,
+    sharedstate
+  }),
+  credentialsUpdated: mkCredentialsUpdated({
+    SessionName,
+    sharedstate
+  }),
+  groupParticipantsUpdate: mkGroupParticipantsUpdate({
+    SessionName,
+    sharedstate
+  }),
+  groupUpdate: mkGroupUpdate({
+    SessionName,
+    sharedstate
+  }),
+  messageNew: mkMessageNew({
+    SessionName,
+    sharedstate
+  }),
+  messageStatusUpdate: mkMessageStatusUpdate({
+    SessionName,
+    sharedstate
+  }),
+  messageUpdate: mkMessageUpdate({
+    SessionName,
+    sharedstate
+  }),
+  open: mkOpen({
+    SessionName,
+    sharedstate
+  }),
+  qr: mkQr({
+    SessionName,
+    sharedstate
+  }),
+  receivedPong: mkReceivedPong({
+    SessionName,
+    sharedstate
+  }),
+  wsClose: mkWsClose({
+    SessionName,
+    sharedstate
+  }),
+  userPresenceUpdate: mkUserPresenceUpdate({
+    SessionName,
+    sharedstate
+  }),
+  userStatusUpdate: mkUserStatusUpdate({
+    SessionName,
+    sharedstate
+  })
 })
 
 module.exports = mkEvents

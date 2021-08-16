@@ -1,5 +1,5 @@
-const mkChatNew = ({ number, sharedstate }) => async (...args) => {
-  console.log(`${number} chatNew`)
+const mkChatNew = ({ SessionName, sharedstate }) => async (...args) => {
+  console.log(`${SessionName} chatNew`)
 
 }
 

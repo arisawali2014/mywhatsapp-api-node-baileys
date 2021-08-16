@@ -1,5 +1,5 @@
-const mkMessageUpdate = ({ number, sharedstate }) => async (...args) => {
-    console.log(`${number} messageUpdate`)
+const mkMessageUpdate = ({ SessionName, sharedstate }) => async (...args) => {
+    console.log(`${SessionName} messageUpdate`)
   
   }
   

@@ -1,5 +1,5 @@
-const mkUserPresenceUpdate = ({ number, sharedstate }) => async (...args) => {
-    console.log(`${number} userPresenceUpdate`)
+const mkUserPresenceUpdate = ({ SessionName, sharedstate }) => async (...args) => {
+    console.log(`${SessionName} userPresenceUpdate`)
   
   }
   

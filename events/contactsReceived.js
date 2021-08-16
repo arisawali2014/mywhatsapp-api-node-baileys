@@ -1,5 +1,5 @@
-const mkContactsReceived = ({ number, sharedstate }) => async (...args) => {
-  console.log(`${number} contactsReceived`)
+const mkContactsReceived = ({ SessionName, sharedstate }) => async (...args) => {
+  console.log(`${SessionName} contactsReceived`)
 
 }
 

@@ -1,5 +1,5 @@
-const mkReceivedPong = ({ number, sharedstate }) => async (...args) => {
-  console.log(`${number} receivedPong`)
+const mkReceivedPong = ({ SessionName, sharedstate }) => async (...args) => {
+  console.log(`${SessionName} receivedPong`)
 
 }
 

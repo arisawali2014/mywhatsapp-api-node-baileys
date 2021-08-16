@@ -1,5 +1,5 @@
-const mkConnecting = ({ number, sharedstate }) => async (...args) => {
-  console.log(`${number} connecting`)
+const mkConnecting = ({ SessionName, sharedstate }) => async (...args) => {
+  console.log(`${SessionName} connecting`)
 
 }
 

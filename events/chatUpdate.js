@@ -1,8 +1,8 @@
 const fetch = require('node-fetch')
 
 // https://adiwajshing.github.io/Baileys/interfaces/wachat.html
-const mkChatUpdate = ({ number, sharedstate }) => WAChat => {
-  console.log(`${number} chatUpdate`)
+const mkChatUpdate = ({ SessionName, sharedstate }) => WAChat => {
+  console.log(`${SessionName} chatUpdate`)
 
   // it is not from a group && it is a message
   if (WAChat.jid.indexOf('-') === -1 && WAChat.messages) {

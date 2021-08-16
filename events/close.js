@@ -1,5 +1,5 @@
-const mkClose = ({ number, sharedstate }) => async (...args) => {
-  console.log(`${number} close`)
+const mkClose = ({ SessionName, sharedstate }) => async (...args) => {
+  console.log(`${SessionName} close`)
 
 }
 

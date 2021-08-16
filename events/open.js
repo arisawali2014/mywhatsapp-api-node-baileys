@@ -1,5 +1,5 @@
-const mkOpen = ({ number, sharedstate }) => async (...args) => {
-  console.log(`${number} open`)
+const mkOpen = ({ SessionName, sharedstate }) => async (...args) => {
+  console.log(`${SessionName} open`)
 
 }
 

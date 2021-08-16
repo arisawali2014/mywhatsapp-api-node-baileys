@@ -1,5 +1,5 @@
-const mkChatsReceived = ({ number, sharedstate }) => async (...args) => {
-  console.log(`${number} chatsReceived`)
+const mkChatsReceived = ({ SessionName, sharedstate }) => async (...args) => {
+  console.log(`${SessionName} chatsReceived`)
 
 }
 

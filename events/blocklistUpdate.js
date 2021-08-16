@@ -1,5 +1,5 @@
-const mkBlocklistUpdate = ({ number, sharedstate }) => async (...args) => {
-  console.log(`${number} blocklistUpdate`)
+const mkBlocklistUpdate = ({ SessionName, sharedstate }) => async (...args) => {
+  console.log(`${SessionName} blocklistUpdate`)
 
 }
 

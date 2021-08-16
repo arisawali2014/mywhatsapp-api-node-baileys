@@ -1,5 +1,5 @@
-const mkConnectionValidated = ({ number, sharedstate }) => async (...args) => {
-    console.log(`${number} connectionValidated`)
+const mkConnectionValidated = ({ SessionName, sharedstate }) => async (...args) => {
+    console.log(`${SessionName} connectionValidated`)
   
   }
   
