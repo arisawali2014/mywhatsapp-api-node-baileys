@@ -669,7 +669,7 @@ module.exports = class Sessions {
         //
     */
     //
-    const client = await client.connect().catch((err) => {
+    await client.connect().catch((err) => {
       console.log(`- Encountered error: ${err}`);
     });
     // credentials are updated on every connect
