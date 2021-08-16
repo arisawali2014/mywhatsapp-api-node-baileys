@@ -569,7 +569,7 @@ module.exports = class Sessions {
     session.state = "QRCODE";
     session.status = "qrRead";
     session.message = 'Sistema iniciando e indisponivel para uso';
-    //
+    //-------------------------------------------------------------------------------------------------------------------------------------//
     const conn = new WAConnection();
     conn.autoReconnect = true; // auto reconnect on disconnect
     conn.logUnhandledMessages = false;
@@ -627,6 +627,14 @@ module.exports = class Sessions {
     });
 		*/
     //
+    client.conn.on('open', () => {
+      // save credentials whenever updated
+      console.log(`- Credentials updated!`)
+      const authInfo = conn.base64EncodedAuthInfo() // get all the auth info we need to restore this session
+      fs.writeFileSync(`${session.tokenPatch}/${session.name}.data.json`, JSON.stringify(authInfo, null, '\t')) // save this info to a file
+    });
+    //
+    //
     const client = await conn.connect().catch((err) => {
       console.log(err);
     });
@@ -651,14 +659,7 @@ module.exports = class Sessions {
     console.log("- Sinstema iniciando");
     var session = Sessions.getSession(SessionName);
     await session.client.then(client => {
-      //
-      client.conn.on('open', () => {
-        // save credentials whenever updated
-        console.log(`credentials updated!`)
-        const authInfo = conn.base64EncodedAuthInfo() // get all the auth info we need to restore this session
-        fs.writeFileSync('./auth_info.json', JSON.stringify(authInfo, null, '\t')) // save this info to a file
-      });
-      //
+
       client.conn.on('chats-received', ({
         hasNewChats
       }) => {
@@ -672,6 +673,20 @@ module.exports = class Sessions {
       client.conn.on('initial-data-received', () => {
         console.log('received all initial messages');
       });
+      //
+      /* example of custom functionality for tracking battery */
+      client.conn.on('CB:action,,battery', json => {
+        const batteryLevelStr = json[2][0][1].value
+        const batterylevel = parseInt(batteryLevelStr)
+        console.log('battery level: ' + batterylevel)
+      });
+      //
+      client.conn.on('close', ({
+        reason,
+        isReconnecting
+      }) => (
+        console.log('oh no got disconnected: ' + reason + ', reconnecting: ' + isReconnecting)
+      ));
     });
   } //setup
   //
