@@ -669,14 +669,7 @@ module.exports = class Sessions {
         //
     */
     //
-    await client.connect().catch((err) => {
-      console.log(`- Encountered error: ${err}`);
-    });
-    // credentials are updated on every connect
-    const authInfo = client.base64EncodedAuthInfo(); // get all the auth info we need to restore this session
-    session.browserSessionToken = JSON.stringify(authInfo, null, '\t');
-    fs.writeFileSync(`${session.tokenPatch}/${session.name}.data.json`, JSON.stringify(authInfo, null, '\t')) // save this info to a file
-    //
+
     return client;
   } //initSession
   //
@@ -691,8 +684,16 @@ module.exports = class Sessions {
   static async setup(SessionName) {
     console.log("- Sinstema iniciando");
     var session = Sessions.getSession(SessionName);
-    await session.client.then(client => {
+    await session.client.then(async (client) => {
 
+      await client.connect().catch((err) => {
+        console.log(`- Encountered error: ${err}`);
+      });
+      // credentials are updated on every connect
+      const authInfo = client.base64EncodedAuthInfo(); // get all the auth info we need to restore this session
+      session.browserSessionToken = JSON.stringify(authInfo, null, '\t');
+      fs.writeFileSync(`${session.tokenPatch}/${session.name}.data.json`, JSON.stringify(authInfo, null, '\t')) // save this info to a file
+      //
 
     });
   } //setup
