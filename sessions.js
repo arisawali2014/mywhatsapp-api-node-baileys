@@ -729,9 +729,7 @@ module.exports = class Sessions {
       client.on('received-pong', events.receivedPong)
       client.on('ws-close', events.wsClose)
 
-      await client.connect()
-
-      patchpanel.set(number, {
+      patchpanel.set(SessionName, {
         client,
         sharedstate
       })
