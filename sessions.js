@@ -571,11 +571,22 @@ module.exports = class Sessions {
     //
     const conn = new WAConnection();
     conn.connectOptions = {
-      regenerateQRIntervalMs: 40000,
+      /** fails the connection if no data is received for X seconds */
       maxIdleTimeMs: 60000,
-      phoneResponseTime: 30000,
-      connectCooldownMs: 40000,
-      alwaysUseTakeover: false
+      /** maximum attempts to connect */
+      maxRetries: 10,
+      /** max time for the phone to respond to a connectivity test */
+      phoneResponseTime: 15000,
+      /** minimum time between new connections */
+      connectCooldownMs: 4000,
+      /** agent used for WS connections (could be a proxy agent) */
+      agent: Agent = undefined,
+      /** agent used for fetch requests -- uploading/downloading media */
+      fetchAgent: Agent = undefined,
+      /** always uses takeover for connecting */
+      alwaysUseTakeover: true,
+      /** log QR to terminal */
+      logQR: true
     };
     conn.browserDescription = ['ConnectZap', 'Chrome', '87']
     fs.existsSync(`${session.tokenPatch}/${session.name}.data.json`) && conn.loadAuthInfo(`${session.tokenPatch}/${session.name}.data.json`);
