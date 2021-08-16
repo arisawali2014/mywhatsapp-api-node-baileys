@@ -702,7 +702,39 @@ module.exports = class Sessions {
     var session = Sessions.getSession(SessionName);
     await session.client.then(async (client) => {
       //
+      /*
+      const sharedstate = {}
+      sharedstate.client = client
 
+      const events = mkEvents({
+        SessionName,
+        sharedstate
+      });
+      client.on('blocklist-update', events.blocklistUpdate);
+      client.on('chat-new', events.chatNew);
+      client.on('chats-received', events.chatsReceived);
+      client.on('chat-update', events.chatUpdate);
+      client.on('close', events.close);
+      client.on('connecting', events.connecting);
+      client.on('connection-phone-change', events.connectionPhoneChange);
+      client.on('connection-validated', events.connectionValidated);
+      client.on('contacts-received', events.contactsReceived);
+      client.on('contact-update', events.contactUpdate);
+      client.on('credentials-updated', events.credentialsUpdated);
+      client.on('group-participants-update', events.groupParticipantsUpdate);
+      client.on('group-update', events.groupUpdate);
+      client.on('message-status-update', events.messageStatusUpdate);
+      client.on('open', events.open);
+      client.on('qr', events.qr);
+      client.on('received-pong', events.receivedPong);
+      client.on('ws-close', events.wsClose);
+
+      patchpanel.set(SessionName, {
+        client,
+        sharedstate
+      });
+      //
+			*/
       //
       await client.connect().then((user) => {
         // credentials are updated on every connect
