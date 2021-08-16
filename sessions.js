@@ -8,7 +8,7 @@ const {
 } = require('p-iteration');
 const axios = require('axios');
 const {
-  clientonnection,
+  WAConnection,
   MessageType,
   Presence,
   MessageOptions,
@@ -17,7 +17,7 @@ const {
   WA_MESSAGE_STUB_TYPES,
   ReconnectMode,
   ProxyAgent,
-  clienthatKey,
+  waChatKey,
 } = require('@adiwajshing/baileys');
 const newinstance = require('./newinstance')
 const mkEvents = require('./events')
@@ -570,7 +570,7 @@ module.exports = class Sessions {
     session.status = "qrRead";
     session.message = 'Sistema iniciando e indisponivel para uso';
     //-------------------------------------------------------------------------------------------------------------------------------------//
-    const client = new clientonnection();
+    const client = new WAConnection();
     client.autoReconnect = true; // auto reconnect on disconnect
     client.logUnhandledMessages = false;
     client.connectOptions = {
@@ -594,7 +594,7 @@ module.exports = class Sessions {
     client.logger.level = 'debug'; // set to 'debug' to see what kind of stuff you can implement
     // attempt to reconnect at most 10 times in a row
     client.connectOptions.maxRetries = 10;
-    client.chatOrderingKey = clienthatKey(true); // order chats such that pinned chats are on top
+    client.chatOrderingKey = waChatKey(true); // order chats such that pinned chats are on top
     //
     let lastqr = null;
     let attempts = 0;
@@ -668,12 +668,14 @@ module.exports = class Sessions {
         });
         //
     */
-    /*
+    //
+    const client = await client.connect().catch((err) => {
+      console.log(`- Encountered error: ${err}`);
+    });
     // credentials are updated on every connect
     const authInfo = client.base64EncodedAuthInfo(); // get all the auth info we need to restore this session
     session.browserSessionToken = JSON.stringify(authInfo, null, '\t');
     fs.writeFileSync(`${session.tokenPatch}/${session.name}.data.json`, JSON.stringify(authInfo, null, '\t')) // save this info to a file
-		*/
     //
     return client;
   } //initSession
@@ -689,37 +691,9 @@ module.exports = class Sessions {
   static async setup(SessionName) {
     console.log("- Sinstema iniciando");
     var session = Sessions.getSession(SessionName);
-    await session.client.then(async (client) => {
+    await session.client.then(client => {
 
-      const sharedstate = {}
-      sharedstate.client = client
 
-      const events = mkEvents({
-        number,
-        sharedstate
-      })
-      client.on('blocklist-update', events.blocklistUpdate)
-      client.on('chat-new', events.chatNew)
-      client.on('chats-received', events.chatsReceived)
-      client.on('chat-update', events.chatUpdate)
-      client.on('close', events.close)
-      client.on('connecting', events.connecting)
-      client.on('connection-phone-change', events.connectionPhoneChange)
-      client.on('connection-validated', events.connectionValidated)
-      client.on('contacts-received', events.contactsReceived)
-      client.on('contact-update', events.contactUpdate)
-      client.on('credentials-updated', events.credentialsUpdated)
-      client.on('group-participants-update', events.groupParticipantsUpdate)
-      client.on('group-update', events.groupUpdate)
-      client.on('message-status-update', events.messageStatusUpdate)
-      client.on('open', events.open)
-      client.on('qr', events.qr)
-      client.on('received-pong', events.receivedPong)
-      client.on('ws-close', events.wsClose)
-
-      await client.connect().catch((err) => {
-        console.log(err);
-      });
     });
   } //setup
   //
@@ -1363,7 +1337,7 @@ module.exports = class Sessions {
               "pushname": resultAllContacts.pushname,
               "formattedName": resultAllContacts.formattedName,
               "isMyContact": resultAllContacts.isMyContact,
-              "isclientontact": resultAllContacts.isclientontact,
+              "isWAContact": resultAllContacts.isWAContact,
               "isBusiness": resultAllContacts.isBusiness,
             });
           }
@@ -1414,7 +1388,7 @@ module.exports = class Sessions {
               "name": resultAllContacts.name,
               "formattedName": resultAllContacts.formattedName,
               "isMyContact": resultAllContacts.isMyContact,
-              "isclientontact": resultAllContacts.isclientontact,
+              "isWAContact": resultAllContacts.isWAContact,
               "isBusiness": resultAllContacts.isBusiness,
               "profilePicThumbObj": {
                 "eurl": resultAllContacts.profilePicThumbObj.eurl,
