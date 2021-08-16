@@ -604,7 +604,7 @@ module.exports = class Sessions {
       lastqr = qr;
       attempts++;
       //
-      console.log("- State", client.state);
+      console.log("- State:", client.state);
       //
       console.log('- Número de tentativas de ler o qr-code:', attempts);
       session.attempts = attempts;
@@ -688,6 +688,10 @@ module.exports = class Sessions {
     console.log("- Sinstema iniciando");
     var session = Sessions.getSession(SessionName);
     await session.client.then(async (client) => {
+      //
+      client.on('connection-phone-change', (update) => {
+        console.log('- State:', update)
+      });
       //
       await client.connect().then((user) => {
         // credentials are updated on every connect
