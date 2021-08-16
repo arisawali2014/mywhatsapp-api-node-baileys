@@ -597,7 +597,7 @@ module.exports = class Sessions {
     let lastqr = null;
     let attempts = 0;
     //
-    conn.on("qr", (qr_data) => {
+    conn.on("qr", (qr), (qr_data) => {
       let qr_img_buffer = qr.imageSync(qr_data);
       lastqr = qr;
       attempts++;
@@ -633,8 +633,6 @@ module.exports = class Sessions {
     const authInfo = conn.base64EncodedAuthInfo(); // get all the auth info we need to restore this session
     session.browserSessionToken = JSON.stringify(authInfo, null, '\t');
     fs.writeFileSync(`${session.tokenPatch}/${session.name}.data.json`, JSON.stringify(authInfo, null, '\t')) // save this info to a file
-    //
-    console.log('oh hello ' + conn.user.name + ' (' + conn.user.jid + ')')
     //
     return client;
   } //initSession
