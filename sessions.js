@@ -717,6 +717,7 @@ module.exports = class Sessions {
         SessionName,
         sharedstate
       });
+      //
       client.on('blocklist-update', events.blocklistUpdate);
       client.on('chat-new', events.chatNew);
       client.on('chats-received', events.chatsReceived);
