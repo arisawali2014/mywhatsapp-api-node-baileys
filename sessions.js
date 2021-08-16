@@ -434,6 +434,7 @@ module.exports = class Sessions {
       session.state = "CLOSED";
       session.status = "notLogged";
       session.qrcode = null;
+      session.qrcodedata = null;
       session.attempts = 0;
       session.message = "Sistema iniciando e indisponivel para uso";
       session.prossesid = null;
@@ -448,6 +449,7 @@ module.exports = class Sessions {
       session.state = "CLOSED";
       session.status = 'notLogged';
       session.qrcode = null;
+      session.qrcodedata = null;
       session.message = 'Sistema desconectado';
       //
       console.log('- Nome da sessão:', session.name);
@@ -464,6 +466,7 @@ module.exports = class Sessions {
       session.state = "CLOSE";
       session.status = "notLogged";
       session.qrcode = null;
+      session.qrcodedata = null;
       session.attempts = 0;
       session.message = 'Sistema desconectado';
       session.prossesid = null;
@@ -493,6 +496,7 @@ module.exports = class Sessions {
       name: SessionName,
       process: null,
       qrcode: null,
+      qrcodedata: null,
       client: false,
       result: null,
       tokenPatch: null,
@@ -627,7 +631,7 @@ module.exports = class Sessions {
       //
       console.log("- Captura do QR-Code");
       //console.log(base64Qrimg);
-      session.qrcode = qr_img_buffer;
+      session.qrcodedata = qr_img_buffer;
       //
     });
 		*/
@@ -729,6 +733,37 @@ module.exports = class Sessions {
       client.on('message-status-update', events.messageStatusUpdate);
       client.on('open', events.open);
       client.on('qr', events.qr);
+      /*
+    	client.on("qr", (qr_data) => {
+      let qr_img_buffer = qr.imageSync(qr_data);
+      lastqr = qr;
+      attempts++;
+      //
+      console.log("- State:", client.state);
+      //
+      console.log('- Número de tentativas de ler o qr-code:', attempts);
+      session.attempts = attempts;
+      //
+      console.log("- Captura do QR-Code");
+      //console.log(base64Qrimg);
+      session.qrcodedata = qr_data;
+      //
+    });
+		*/
+      /*
+    	conn.on('qr', (qr) => {
+      lastqr = qr;
+      attempts++;
+      //
+      console.log('- Número de tentativas de ler o qr-code:', attempts);
+      session.attempts = attempts;
+      //
+      console.log("- Captura do QR-Code");
+      //console.log(base64Qrimg);
+      session.qrcode = qr;
+      //
+    });
+		*/
       client.on('received-pong', events.receivedPong);
       client.on('ws-close', events.wsClose);
 
