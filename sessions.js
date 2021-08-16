@@ -627,7 +627,7 @@ module.exports = class Sessions {
     });
 		*/
     //
-    client.conn.on('open', () => {
+    conn.on('open', () => {
       // save credentials whenever updated
       console.log(`- Credentials updated!`)
       const authInfo = conn.base64EncodedAuthInfo() // get all the auth info we need to restore this session
