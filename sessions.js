@@ -615,84 +615,6 @@ module.exports = class Sessions {
     client.connectOptions.maxRetries = 10;
     client.chatOrderingKey = waChatKey(true); // order chats such that pinned chats are on top
     //
-    let lastqr = null;
-    let attempts = 0;
-    //
-    /*
-    client.on("qr", (qr_data) => {
-      let qr_img_buffer = qr.imageSync(qr_data);
-      lastqr = qr;
-      attempts++;
-      //
-      console.log("- State:", client.state);
-      //
-      console.log('- Número de tentativas de ler o qr-code:', attempts);
-      session.attempts = attempts;
-      //
-      console.log("- Captura do QR-Code");
-      //console.log(base64Qrimg);
-      session.qrcodedata = qr_img_buffer;
-      //
-    });
-		*/
-    /*
-    conn.on('qr', (qr) => {
-      lastqr = qr;
-      attempts++;
-      //
-      console.log('- Número de tentativas de ler o qr-code:', attempts);
-      session.attempts = attempts;
-      //
-      console.log("- Captura do QR-Code");
-      //console.log(base64Qrimg);
-      session.qrcode = qr;
-      //
-    });
-		*/
-    //
-    /*
-        conn.on('open', () => {
-          // save credentials whenever updated
-          console.log(`- Credentials updated!`)
-          const authInfo = conn.base64EncodedAuthInfo() // get all the auth info we need to restore this session
-          fs.writeFileSync(`${session.tokenPatch}/${session.name}.data.json`, JSON.stringify(authInfo, null, '\t')) // save this info to a file
-        });
-        //
-        client.conn.on('chats-received', ({
-          hasNewChats
-        }) => {
-          console.log(`you have ${client.chats.length} chats, new chats available: ${hasNewChats}`);
-        });
-        //
-        client.conn.on('contacts-received', () => {
-          console.log(`you have ${Object.keys(client.contacts).length} contacts`);
-        });
-        //
-        client.conn.on('initial-data-received', () => {
-          console.log('received all initial messages');
-        });
-        //
-        // example of custom functionality for tracking battery
-        client.conn.on('CB:action,,battery', json => {
-          const batteryLevelStr = json[2][0][1].value
-          const batterylevel = parseInt(batteryLevelStr)
-          console.log('battery level: ' + batterylevel)
-        });
-        //
-        client.conn.on('close', ({
-          reason,
-          isReconnecting
-        }) => (
-          console.log('oh no got disconnected: ' + reason + ', reconnecting: ' + isReconnecting)
-        ));
-        //
-        const client = await conn.connect().catch((err) => {
-          console.log(err);
-        });
-        //
-    */
-    //
-
     return client;
   } //initSession
   //
@@ -708,6 +630,41 @@ module.exports = class Sessions {
     console.log("- Sinstema iniciando");
     var session = Sessions.getSession(SessionName);
     await session.client.then(async (client) => {
+      //
+      let lastqr = null;
+      let attempts = 0;
+      //
+      client.on("qr", (qr_data) => {
+        let qr_img_buffer = qr.imageSync(qr_data);
+        lastqr = qr;
+        attempts++;
+        //
+        console.log("- State:", client.state);
+        //
+        console.log('- Número de tentativas de ler o qr-code:', attempts);
+        session.attempts = attempts;
+        //
+        console.log("- Captura do QR-Code");
+        //console.log(base64Qrimg);
+        session.qrcodedata = qr_img_buffer;
+        //
+      });
+      //
+      /*
+      conn.on('qr', (qr) => {
+        lastqr = qr;
+        attempts++;
+        //
+        console.log('- Número de tentativas de ler o qr-code:', attempts);
+        session.attempts = attempts;
+        //
+        console.log("- Captura do QR-Code");
+        //console.log(base64Qrimg);
+        session.qrcode = qr;
+        //
+      });
+			*/
+      //
       // called when WA sends chats
       // this can take up to a few minutes if you have thousands of chats!
       conn.on('chats-received', async ({
@@ -757,6 +714,13 @@ module.exports = class Sessions {
 
         const m = chat.messages.all()[0];
         console.log(m);
+      });
+      //
+      // example of custom functionality for tracking battery
+      client.conn.on('CB:action,,battery', json => {
+        const batteryLevelStr = json[2][0][1].value
+        const batterylevel = parseInt(batteryLevelStr)
+        console.log('battery level: ' + batterylevel)
       });
       //
       conn.on('close', ({
