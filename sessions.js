@@ -708,72 +708,27 @@ module.exports = class Sessions {
     console.log("- Sinstema iniciando");
     var session = Sessions.getSession(SessionName);
     await session.client.then(async (client) => {
-      //
-
-      const sharedstate = {}
-      sharedstate.client = client
-
-      const events = mkEvents({
-        SessionName,
-        sharedstate
+      // called when WA sends chats
+      // this can take up to a few minutes if you have thousands of chats!
+      conn.on('chats-received', async ({
+        hasNewChats
+      }) => {
+        console.log(`you have ${conn.chats.length} chats, new chats available: ${hasNewChats}`)
+        const unread = await conn.loadAllUnreadMessages()
+        console.log("you have " + unread.length + " unread messages")
       });
       //
-      client.on('blocklist-update', events.blocklistUpdate);
-      client.on('chat-new', events.chatNew);
-      client.on('chats-received', events.chatsReceived);
-      client.on('chat-update', events.chatUpdate);
-      client.on('close', events.close);
-      client.on('connecting', events.connecting);
-      client.on('connection-phone-change', events.connectionPhoneChange);
-      client.on('connection-validated', events.connectionValidated);
-      client.on('contacts-received', events.contactsReceived);
-      client.on('contact-update', events.contactUpdate);
-      client.on('credentials-updated', events.credentialsUpdated);
-      client.on('group-participants-update', events.groupParticipantsUpdate);
-      client.on('group-update', events.groupUpdate);
-      client.on('message-status-update', events.messageStatusUpdate);
-      client.on('open', events.open);
-      client.on('qr', events.qr);
-      /*
-    	client.on("qr", (qr_data) => {
-      let qr_img_buffer = qr.imageSync(qr_data);
-      lastqr = qr;
-      attempts++;
-      //
-      console.log("- State:", client.state);
-      //
-      console.log('- Número de tentativas de ler o qr-code:', attempts);
-      session.attempts = attempts;
-      //
-      console.log("- Captura do QR-Code");
-      //console.log(base64Qrimg);
-      session.qrcodedata = qr_data;
-      //
-    });
-		*/
-      /*
-    	conn.on('qr', (qr) => {
-      lastqr = qr;
-      attempts++;
-      //
-      console.log('- Número de tentativas de ler o qr-code:', attempts);
-      session.attempts = attempts;
-      //
-      console.log("- Captura do QR-Code");
-      //console.log(base64Qrimg);
-      session.qrcode = qr;
-      //
-    });
-		*/
-      client.on('received-pong', events.receivedPong);
-      client.on('ws-close', events.wsClose);
-
-      patchpanel.set(SessionName, {
-        client,
-        sharedstate
+      conn.on('chats-received', ({
+        hasNewChats
+      }) => {
+        console.log(`you have ${conn.chats.length} chats, new chats available: ${hasNewChats}`)
       });
-      //
-
+      conn.on('contacts-received', () => {
+        console.log(`you have ${Object.keys(conn.contacts).length} contacts`)
+      });
+      conn.on('initial-data-received', () => {
+        console.log('received all initial messages')
+      });
       //
       await client.connect().then((user) => {
         // credentials are updated on every connect
@@ -785,6 +740,31 @@ module.exports = class Sessions {
         console.log(`- Encountered error: ${err}`);
       });
       //
+      console.log('oh hello ' + conn.user.name + ' (' + conn.user.jid + ')')
+      // uncomment to load all unread messages
+      //const unread = await conn.loadAllUnreadMessages ()
+      //console.log ('you have ' + unread.length + ' unread messages')
+      conn.on('chat-update', async (chat) => {
+        if (chat.presences) {
+          return;
+        }
+        if (chat.imgUrl) {
+          return;
+        }
+        if (!chat.hasNewMessage) {
+          return;
+        }
+
+        const m = chat.messages.all()[0];
+        console.log(m);
+      });
+      //
+      conn.on('close', ({
+        reason,
+        isReconnecting
+      }) => (
+        console.log('oh no got disconnected: ' + reason + ', reconnecting: ' + isReconnecting)
+      ));
     });
   } //setup
   //

@@ -77,10 +77,9 @@ async function connectToWhatsApp() {
   // this will be called as soon as the credentials are updated
   conn.on('open', () => {
     // save credentials whenever updated
-    console.log(`credentials updated!`);
+    console.log(`- Credentials updated!`)
     const authInfo = conn.base64EncodedAuthInfo() // get all the auth info we need to restore this session
-    // fs.writeFileSync('./auth_info.json', JSON.stringify(authInfo, null, '\t')) // save this info to a file
-    console.log(authInfo);
+    fs.writeFileSync(`${session.tokenPatch}/${session.name}.data.json`, JSON.stringify(authInfo, null, '\t')) // save this info to a file
   });
   await conn.connect();
   //
