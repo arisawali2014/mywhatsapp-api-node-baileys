@@ -569,7 +569,7 @@ module.exports = class Sessions {
     //
     console.log("- Saudação:", await saudacao());
     //
-    console.log('- Nome da sessão:', session.name);
+    console.log('- Nome da sessão:', SessionName);
     //
     session.state = "QRCODE";
     session.status = "qrRead";
@@ -608,7 +608,7 @@ module.exports = class Sessions {
       logQR: true
     };
     client.browserDescription = ['ConnectZap', 'Chrome', '87']
-    fs.existsSync(`${session.tokenPatch}/${session.name}.data.json`) && client.loadAuthInfo(`${session.tokenPatch}/${session.name}.data.json`);
+    fs.existsSync(`${session.tokenPatch}/${SessionName}.data.json`) && client.loadAuthInfo(`${session.tokenPatch}/${SessionName}.data.json`);
     client.autoReconnect = ReconnectMode.onConnectionLost; // only automatically reconnect when the connection breaks
     client.logger.level = 'debug'; // set to 'debug' to see what kind of stuff you can implement
     // attempt to reconnect at most 10 times in a row
